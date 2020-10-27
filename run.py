@@ -1,10 +1,10 @@
 import torch
 
-from dnn_vessel_heterogeneity.cnn_dataloader import VesselDataset, preprocess_input
-from dnn_vessel_heterogeneity.feature_extraction.cnn_feature_gen import CNNFeatureGen
-from dnn_vessel_heterogeneity.feature_extraction.sift_feature_gen import SIFTFeatureGen
-from dnn_vessel_heterogeneity.models.clustering_helper import ClusteringHelper
-from dnn_vessel_heterogeneity.models.vessel_net import VesselNet
+from cnn_dataloader import VesselDataset, preprocess_input
+from feature_extraction.cnn_feature_gen import CNNFeatureGen
+from feature_extraction.sift_feature_gen import SIFTFeatureGen
+from models.clustering_helper import ClusteringHelper
+from models.vessel_net import VesselNet
 from utils.mibi_reader import get_all_point_data
 from utils.extract_vessel_contours import *
 from utils.markers_feature_gen import *
