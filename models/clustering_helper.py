@@ -79,7 +79,7 @@ class ClusteringHelper:
             elif self.method == "hierarichal":
                 self.model = linkage(self.data, metric=self.metric)
 
-            if not self.save:
+            if self.save:
                 pickle.dump(self.model, open("trained_models/%s_model.pkl" % self.method, "wb"))
 
         else:

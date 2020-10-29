@@ -17,26 +17,24 @@ class ClusteringFlowSOM:
 
     def __init__(self,
                  data,
-                 point_name,
                  x_labels,
-                 clusters=10,
+                 clusters=35,
                  explore_clusters=0,
                  pretrained=False,
-                 show_plots=False,
-                 x_n=30,
-                 y_n=30,
+                 show_plots=True,
+                 x_n=50,
+                 y_n=50,
                  d=34,
                  save=True):
-        '''
+        """
         FlowSOM algorithm for clustering marker distributions
 
         :param data: Marker data for each cell
-        :param point_name: The name of the point being used
         :param x_labels: Marker labels for plots
         :param clusters: Number of clusters (Cells) to be used
         :param pretrained: Is the model pretrained
         :param show_plots: Show each of the plots?
-        '''
+        """
 
         assert explore_clusters < clusters, "Exploration must be less than number of clusters"
 
@@ -46,7 +44,6 @@ class ClusteringFlowSOM:
         self.pretrained = pretrained
         self.model = None
         self.x_labels = x_labels
-        self.point_name = point_name
         self.show_plots = show_plots
         self.x_n = x_n
         self.y_n = y_n
@@ -54,11 +51,11 @@ class ClusteringFlowSOM:
         self.save = save
 
     def fit_model(self):
-        '''
+        """
         Fit model and save if not pretrained
 
         :return: None
-        '''
+        """
 
         if not self.pretrained:
             self.som_mapping(self.x_n, self.y_n, self.d, sigma=2.5, lr=0.1)
@@ -146,7 +143,7 @@ class ClusteringFlowSOM:
 
             cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", colors)
 
-            ax = sns.clustermap(mmm, linewidth=0.5, xticklabels=self.x_labels, cmap=cmap)
+            ax = sns.heatmap(mmm, linewidth=0.5, xticklabels=self.x_labels, cmap=cmap)
             # plt.savefig(os.path.join('results', 'quantile_scale_85', 'heatmap.png'))
             plt.show()
 
@@ -185,7 +182,8 @@ class ClusteringFlowSOM:
 
     def som_mapping(self, x_n, y_n, d, sigma, lr,
                     neighborhood='gaussian',
-                    seed=10):
+                    seed=10,
+                    epochs=10000):
         """
         Perform SOM on transform data
 
@@ -205,11 +203,12 @@ class ClusteringFlowSOM:
                        e.g. 'gaussian', the initialized weights' distribution
         seed : int
                for reproducing
+               :param epochs:
         """
         som = MiniSom(x_n, y_n, d, sigma, lr, neighborhood_function=neighborhood, random_seed=seed)  # initialize the map
         som.pca_weights_init(self.data)  # initialize the weights
         print("Training...")
-        som.train(self.data, 10000)  # random training
+        som.train(self.data, epochs)  # random training
         print("\n...ready!")
         self.model = som
 
