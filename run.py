@@ -68,38 +68,41 @@ def find_vessel_clusters():
         all_points_vessel_coords.append(coords)
 
     s_lda = SpatialLDA(n_topics=25, x_labels=markers_names)
-    y = s_lda.fit_predict(all_points_microenvironment_expression, all_points_vessel_coords)
-    print(y)
+    d = s_lda.fit_predict(all_points_microenvironment_expression, all_points_vessel_coords)
+    s_lda.plot()
+    # print(y)
+    #
+    flat_list = [item for sublist in all_points_microenvironment_expression for item in sublist]
 
-    # x = np.array(per_point_microenvironment_expression)
+    x = np.array(flat_list)
     # som = ClusteringFlowSOM(x, markers_names)
     # som.fit_model()
-    # d, c = som.predict()
-    #
-    # km = ClusteringHelper(per_point_microenvironment_expression, n_clusters=35, method="kmeans")
-    # d1, c1 = km.fit_predict()
-    # km.plot()
-    #
-    # print("completeness_score: ", completeness_score(d, d1))
-    # print("homogeneity_score: ", homogeneity_score(d, d1))
-    # print("v_measure_score: ", v_measure_score(d, d1))
-    #
-    # colors = [list(np.random.choice(range(256), size=3)) for _ in range(250)]
-    # idx = 0
-    # for per_point_contours in all_points_vessel_contours:
-    #     img = np.zeros((config.segmentation_mask_size[0], config.segmentation_mask_size[1], 3), np.uint8)
-    #     img1 = np.zeros((config.segmentation_mask_size[0], config.segmentation_mask_size[1], 3), np.uint8)
-    #
-    #     for i in range(len(per_point_contours)):
-    #         color = colors[d[idx]]
-    #         color1 = colors[d1[idx]]
-    #         cv.drawContours(img, per_point_contours, i, (int(color[0]), int(color[1]), int(color[2])), cv.FILLED)
-    #         cv.drawContours(img1, per_point_contours, i, (int(color1[0]), int(color1[1]), int(color1[2])), cv.FILLED)
-    #         idx += 1
-    #
-    #     cv.imshow("ASD", img)
-    #     cv.imshow("ASD1", img1)
-    #     cv.waitKey(0)
+    # d1, c1 = som.predict()
+
+    km = ClusteringHelper(x, n_clusters=25, method="kmeans")
+    d1, c1 = km.fit_predict()
+    km.plot()
+
+    print("completeness_score: ", completeness_score(d, d1))
+    print("homogeneity_score: ", homogeneity_score(d, d1))
+    print("v_measure_score: ", v_measure_score(d, d1))
+
+    colors = [list(np.random.choice(range(256), size=3)) for _ in range(250)]
+    idx = 0
+    for per_point_contours in all_points_vessel_contours:
+        img = np.zeros((config.segmentation_mask_size[0], config.segmentation_mask_size[1], 3), np.uint8)
+        img1 = np.zeros((config.segmentation_mask_size[0], config.segmentation_mask_size[1], 3), np.uint8)
+
+        for i in range(len(per_point_contours)):
+            color = colors[d[idx]]
+            color1 = colors[d1[idx]]
+            cv.drawContours(img, per_point_contours, i, (int(color[0]), int(color[1]), int(color[2])), cv.FILLED)
+            cv.drawContours(img1, per_point_contours, i, (int(color1[0]), int(color1[1]), int(color1[2])), cv.FILLED)
+            idx += 1
+
+        cv.imshow("ASD", img)
+        cv.imshow("ASD1", img1)
+        cv.waitKey(0)
 
 
 def extract_vessel_heterogeneity(n=56,
