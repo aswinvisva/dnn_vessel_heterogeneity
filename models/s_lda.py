@@ -34,13 +34,18 @@ class SpatialLDA:
         x = self._generate_features(all_samples_marker_data)
         diff_matrices = self._compute_difference_matrices(x, all_samples_coordinates)
 
-        if not self.load_model:
-            self._model = s_lda.train(x, diff_matrices, self._n_topics, verbosity=1, n_parallel_processes=8)
+        print(x)
 
-            with open('../trained_models/s_lda.p', 'wb') as outfile:
+        if not self.load_model:
+            self._model = s_lda.train(x, diff_matrices, self._n_topics,
+                                      verbosity=1,
+                                      n_parallel_processes=8,
+                                      difference_penalty=3)
+
+            with open('trained_models/s_lda_raw_counts.p', 'wb') as outfile:
                 pickle.dump(self._model, outfile)
         else:
-            with open('/home/aswinvisva/dnn_vessel_heterogeneity/trained_models/s_lda.p', 'rb') as infile:
+            with open('trained_models/s_lda_raw_counts.p', 'rb') as infile:
                 self._model = pickle.load(infile)
 
         y = []
@@ -62,9 +67,10 @@ class SpatialLDA:
 
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", colors)
 
-        ax = sns.clustermap(self._model.components_,
+        ax = sns.clustermap(self._model.components_ / self._model.components_.sum(axis=1)[:, np.newaxis],
                             linewidth=0.5,
-                            cmap=cmap
+                            cmap=cmap,
+                            xticklabels=self._x_labels,
                             )
 
         plt.show()

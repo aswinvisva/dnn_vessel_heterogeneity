@@ -1,3 +1,4 @@
+import os
 import pickle
 from collections import Counter
 
@@ -5,6 +6,7 @@ import matplotlib
 import numpy as np
 import seaborn as sns
 
+from config.config_settings import visualization_results_dir
 from models.consensus_clustering import ConsensusCluster
 from sklearn.cluster import *
 import pandas as pd
@@ -18,7 +20,7 @@ class ClusteringFlowSOM:
     def __init__(self,
                  data,
                  x_labels,
-                 clusters=35,
+                 clusters=10,
                  explore_clusters=0,
                  pretrained=False,
                  show_plots=True,
@@ -143,8 +145,8 @@ class ClusteringFlowSOM:
 
             cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", colors)
 
-            ax = sns.heatmap(mmm, linewidth=0.5, xticklabels=self.x_labels, cmap=cmap)
-            # plt.savefig(os.path.join('results', 'quantile_scale_85', 'heatmap.png'))
+            ax = sns.clustermap(mmm, linewidth=0.5, xticklabels=self.x_labels, cmap=cmap)
+            plt.savefig(os.path.join(visualization_results_dir, 'FlowSOM', 'heatmap_%s_clusters.png' % self.clusters))
             plt.show()
 
         for i in range(len(mmm.values)):
@@ -216,7 +218,7 @@ class ClusteringFlowSOM:
 
         if not self.pretrained:
             # initialize cluster
-            cluster_ = ConsensusCluster(AgglomerativeClustering,
+            cluster_ = ConsensusCluster(KMeans,
                                         self.clusters - self.explore_clusters, self.clusters + self.explore_clusters, 3)
 
             k = cluster_.get_optimal_number_of_clusters(flatten_weights, verbose=True)
@@ -231,3 +233,28 @@ class ClusteringFlowSOM:
                 self.cluster = pickle.load(infile)
 
         self.flatten_weights = flatten_weights
+
+    def elbow_method(self):
+        '''
+        Elbow method for determining optimal 'k' for K-Means
+
+        :return: None
+        '''
+
+        # k means determine k
+        distortions = []
+        K = range(1, self.clusters + self.explore_clusters)
+        for k in K:
+            km = KMeans(n_clusters=k)
+            km = km.fit(self.flatten_weights)
+            distortions.append(km.inertia_)
+
+        # Plot the elbow
+        plt.plot(K, distortions, 'bx-')
+        plt.xlabel('k')
+        plt.ylabel('Distortion')
+        plt.title('The Elbow Method showing the optimal k')
+        plt.show()
+        plt.savefig(os.path.join(visualization_results_dir, 'FlowSOM', 'elbow.png'))
+
+

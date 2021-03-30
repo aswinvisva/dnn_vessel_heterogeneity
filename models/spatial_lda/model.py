@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import itertools
 import logging
+
 from multiprocessing import Pool
 import time
 import numpy as np
@@ -11,6 +12,8 @@ from tqdm.auto import tqdm
 
 import models.spatial_lda.admm as admm
 from models.spatial_lda.online_lda import LatentDirichletAllocation
+
+logging.basicConfig(level=logging.INFO)
 
 
 def _update_xi(counts, diff_matrix, diff_penalty, sample_id, verbosity=0,
@@ -29,7 +32,7 @@ def _wrap_update_xi(inputs):
 
 
 def _update_xis(sample_features, difference_matrices, difference_penalty, gamma,
-                 n_parallel_processes, verbosity, primal_dual_mu=2, admm_rho=0.1):
+                n_parallel_processes, verbosity, primal_dual_mu=2, admm_rho=0.1):
     sample_idxs = sample_features.index.map(lambda x: x[0])
     new_xis = np.zeros_like(gamma)
     if n_parallel_processes > 1:
